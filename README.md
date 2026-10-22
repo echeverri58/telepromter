@@ -6,6 +6,8 @@ y graba **vídeo con audio**: el texto **nunca** aparece en la grabación.
 
 Sin frameworks, sin npm, sin paso de compilación. Listo para subir a GitHub Pages.
 
+**Demo en vivo:** <https://echeverri58.github.io/telepromter/>
+
 ---
 
 ## 1. Qué hace
