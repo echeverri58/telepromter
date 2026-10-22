@@ -34,6 +34,7 @@ teleprompter/
 ├── manifest.webmanifest    # Manifiesto PWA (start_url y scope relativos)
 ├── sw.js                   # Service worker: precache + cache-first + limpieza
 ├── README.md               # Este archivo
+├── deploy.ps1              # Publicar en un paso: versiona el SW + commit + push
 ├── .nojekyll               # Evita el procesado Jekyll de GitHub Pages
 ├── icons/
 │   ├── icon.svg            # Icono vectorial (fuente del diseño)
@@ -259,6 +260,39 @@ el paquete de iconos). Renombra los archivos a los nombres de la carpeta `icons/
 ---
 
 ## 9. Actualizar la app publicada
+
+### 9.1 Lo rápido: el script `deploy.ps1`
+
+En Windows, desde la carpeta del proyecto:
+
+```powershell
+.\deploy.ps1
+# o con un mensaje propio:
+.\deploy.ps1 -Message "Arreglo la velocidad del scroll"
+# solo commit, sin subir:
+.\deploy.ps1 -NoPush
+```
+
+Qué hace [`deploy.ps1`](deploy.ps1):
+
+1. Lista los cambios pendientes y comprueba que estás en un repo con remoto.
+2. Si ha cambiado algo que el service worker precachea (`index.html`,
+   `style.css`, `app.js`, `manifest.webmanifest` o `icons/`) **sube solo** el
+   número de `VERSION` en [`sw.js`](sw.js) (1.3.0 → 1.3.1). Si solo tocas el
+   README o el propio script, **no** toca la versión.
+3. Hace `git add -A` + commit y `git push` a `origin`.
+4. Te dice la URL de GitHub Pages y recuerda que tarda 1–2 minutos en reflejarse.
+
+Si PowerShell no deja ejecutarlo:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\deploy.ps1
+```
+
+> Si el `push` falla por credenciales, abre Git Bash o el *Git Credential
+> Manager* una vez (`git push` a mano) y luego el script funcionará solo.
+
+### 9.2 A mano
 
 Cuando cambies `index.html`, `style.css`, `app.js` o los iconos:
 
