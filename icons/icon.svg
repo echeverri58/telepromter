@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Teleprompter: pantalla con renglones de texto">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b2735"/>
+      <stop offset="1" stop-color="#070a0f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect x="96" y="120" width="320" height="272" rx="44" fill="#f4f8fd"/>
+  <rect x="140" y="187" width="170" height="30" rx="15" fill="#101822"/>
+  <rect x="140" y="241" width="232" height="30" rx="15" fill="#ff3b30"/>
+  <rect x="140" y="295" width="140" height="30" rx="15" fill="#101822"/>
+</svg>

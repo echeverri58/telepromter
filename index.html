@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Teleprompter · graba con tu guion</title>
+  <meta name="description" content="Teleprompter instalable: cámara a pantalla completa, guion con desplazamiento automático y grabación de vídeo con audio. El texto nunca aparece en el vídeo.">
+  <meta name="theme-color" content="#0b0f14">
+  <meta name="color-scheme" content="dark">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- PWA / iOS -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Teleprompter">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<!-- ===================================================================
+     Sprite de iconos (SVG en línea, sin peticiones extra)
+     =================================================================== -->
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-switch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 4v5h-5"/><circle cx="12" cy="12" r="2.6"/></symbol>
+  <symbol id="i-mirror" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18" stroke-dasharray="2.5 3"/><path d="M9 7 4 12l5 5z"/><path d="M15 7l5 5-5 5z"/></symbol>
+  <symbol id="i-fullscreen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20 9 12l10-8z"/><path d="M5 4v16"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 5l11 7-11 7z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-linejoin="round"><rect x="7" y="5" width="3.6" height="14" rx="1.2"/><rect x="13.4" y="5" width="3.6" height="14" rx="1.2"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v11"/><path d="M7 9.5l5 5 5-5"/><path d="M4 20h16"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5"/><path d="M8 7.5l4-4 4 4"/><path d="M5 13v6.5h14V13"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="13" height="10" rx="2.5"/><path d="M16 12l5-3v6l-5-3z"/></symbol>
+</svg>
+
+<main class="app">
+
+  <!-- =================================================================
+       PANTALLA 1 · Editor del guion
+       ================================================================= -->
+  <section class="screen screen-editor is-active" id="screen-editor" aria-label="Editor del guion">
+    <header class="app-head">
+      <img class="app-logo" src="./icons/icon-192.png" alt="" width="52" height="52" decoding="async">
+      <div class="app-head-text">
+        <h1 class="app-title">Teleprompter</h1>
+        <p class="app-sub">Lee tu guion mirando a la cámara. El texto no se graba.</p>
+      </div>
+    </header>
+
+    <div class="editor-card">
+      <div class="editor-card-head">
+        <label class="field-label" for="script">Guion</label>
+        <span class="field-hint">Se guarda solo en este dispositivo</span>
+      </div>
+
+      <textarea id="script" class="script-input" rows="10" spellcheck="true" autocapitalize="sentences" autocomplete="off" placeholder="Pega o escribe aquí tu guion…&#10;&#10;Deja una línea en blanco para separar párrafos. El texto se desplaza solo sobre la imagen de la cámara."></textarea>
+
+      <div class="editor-meta">
+        <span class="save-state is-saved" id="save-state" aria-live="polite">
+          <svg class="icon icon-check" aria-hidden="true"><use href="#i-check"></use></svg>
+          <span id="save-state-text">Guardado</span>
+        </span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span id="word-count">0 palabras</span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span id="read-time">≈ 0 min</span>
+      </div>
+    </div>
+
+    <div class="editor-actions">
+      <button class="btn btn-primary btn-lg" id="btn-start" type="button">
+        <svg class="icon" aria-hidden="true"><use href="#i-camera"></use></svg>
+        <span>Iniciar teleprompter</span>
+      </button>
+
+      <div class="editor-row">
+        <button class="btn btn-ghost" id="btn-install" type="button" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg>
+          <span>Instalar app</span>
+        </button>
+        <button class="btn btn-ghost btn-danger" id="btn-clear" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg>
+          <span id="btn-clear-text">Borrar guion</span>
+        </button>
+      </div>
+    </div>
+
+    <details class="help">
+      <summary>Cómo funciona y consejos</summary>
+      <div class="help-body">
+        <p><strong>El texto no se graba.</strong> La imagen de la cámara va en un <code>&lt;video&gt;</code> y el guion es una capa HTML encima. La grabación usa directamente el flujo de cámara + micrófono, así que el guion nunca entra en el vídeo.</p>
+        <ul>
+          <li>Toca la pantalla mientras lees para ocultar o mostrar los controles.</li>
+          <li>Desliza el texto con el dedo para colocarlo donde quieras.</li>
+          <li>Pulsa <em>Grabar</em>: verás una cuenta atrás de 3 segundos y el texto empieza a moverse.</li>
+          <li>Puedes ensayar sin grabar con el botón de reproducir.</li>
+        </ul>
+        <p class="help-note">La cámara necesita HTTPS (en GitHub Pages ya está activo). En iPhone, instala la app desde Safari con Compartir → «Añadir a pantalla de inicio».</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- =================================================================
+       PANTALLA 2 · Teleprompter sobre la cámara
+       ================================================================= -->
+  <section class="screen screen-cam" id="screen-cam" aria-label="Teleprompter y cámara">
+
+    <!-- Stream de la cámara: NUNCA se lee desde el DOM para grabar. -->
+    <video id="camera" class="camera" autoplay muted playsinline disablepictureinpicture></video>
+
+    <!-- Estado de la cámara (cargando / error) -->
+    <div class="cam-status" id="cam-status" hidden>
+      <div class="cam-status-card" role="status">
+        <div class="spinner" id="cam-spinner" aria-hidden="true"></div>
+        <h2 class="cam-status-title" id="cam-status-title">Activando cámara…</h2>
+        <p class="cam-status-text" id="cam-status-text">Acepta el permiso de cámara y micrófono.</p>
+        <div class="cam-status-actions" id="cam-status-actions" hidden>
+          <button class="btn btn-primary" id="btn-retry-cam" type="button">Reintentar</button>
+          <button class="btn btn-ghost" id="btn-cam-back" type="button">Volver al guion</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capa de texto: fondo semitransparente + guion. No forma parte del stream. -->
+    <div class="scrim" id="scrim">
+      <div class="guide" id="guide" aria-hidden="true"><span class="guide-line"></span></div>
+      <div class="prompt-layer" id="prompt-layer">
+        <div class="prompt-text" id="prompt-text"></div>
+      </div>
+    </div>
+
+    <!-- Indicador de grabación (siempre visible, aunque los controles estén ocultos) -->
+    <div class="rec-chip" id="rec-chip" hidden>
+      <span class="rec-dot" aria-hidden="true"></span>
+      <span class="rec-time" id="rec-time">00:00</span>
+      <span class="sr-only">Grabando</span>
+    </div>
+
+    <header class="chrome chrome-top">
+      <button class="icon-btn" id="btn-exit" type="button" aria-label="Volver al guion">
+        <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+      </button>
+
+      <div class="chrome-top-right">
+        <button class="icon-btn" id="btn-mirror" type="button" aria-label="Espejo del texto" aria-pressed="false" title="Espejo del texto">
+          <svg class="icon" aria-hidden="true"><use href="#i-mirror"></use></svg>
+        </button>
+        <button class="icon-btn" id="btn-flip" type="button" aria-label="Cambiar de cámara" title="Cambiar de cámara">
+          <svg class="icon" aria-hidden="true"><use href="#i-switch"></use></svg>
+        </button>
+        <button class="icon-btn" id="btn-fullscreen" type="button" aria-label="Pantalla completa" title="Pantalla completa">
+          <svg class="icon" aria-hidden="true"><use href="#i-fullscreen"></use></svg>
+        </button>
+      </div>
+    </header>
+
+    <footer class="chrome chrome-bottom">
+      <div class="sliders">
+        <div class="advance-row">
+          <span class="advance-label" id="advance-label">Avance</span>
+          <div class="segmented" role="group" aria-labelledby="advance-label">
+            <button type="button" class="seg is-active" id="btn-advance-smooth" aria-pressed="true"
+                    title="Desplazamiento continuo y suave">Continuo</button>
+            <button type="button" class="seg" id="btn-advance-step" aria-pressed="false"
+                    title="El texto está quieto y salta una línea: se nota menos que lees">Por líneas</button>
+          </div>
+        </div>
+        <div class="slider-row">
+          <label for="speed">Velocidad</label>
+          <input type="range" id="speed" class="slider" min="5" max="300" step="1" value="32">
+          <output id="speed-out" for="speed">32 px/s</output>
+        </div>
+        <div class="slider-row">
+          <label for="size">Tamaño</label>
+          <input type="range" id="size" class="slider" min="18" max="96" step="1" value="34">
+          <output id="size-out" for="size">34 px</output>
+        </div>
+        <div class="slider-row">
+          <label for="bg">Fondo</label>
+          <input type="range" id="bg" class="slider" min="0" max="90" step="1" value="45">
+          <output id="bg-out" for="bg">45 %</output>
+        </div>
+        <div class="slider-row">
+          <label for="readline">Lectura</label>
+          <input type="range" id="readline" class="slider" min="12" max="50" step="1" value="16"
+                 aria-label="Altura de la línea de lectura: más bajo es más cerca de la cámara">
+          <output id="readline-out" for="readline">16 %</output>
+        </div>
+      </div>
+
+      <div class="transport">
+        <div class="transport-side">
+          <button class="pill" id="btn-restart" type="button" aria-label="Reiniciar el texto desde el principio">
+            <svg class="icon" aria-hidden="true"><use href="#i-restart"></use></svg>
+            <span class="pill-label">Reiniciar</span>
+          </button>
+          <button class="pill" id="btn-play" type="button" aria-label="Reproducir el desplazamiento">
+            <svg class="icon icon-play" aria-hidden="true"><use href="#i-play"></use></svg>
+            <svg class="icon icon-pause" aria-hidden="true"><use href="#i-pause"></use></svg>
+            <span class="pill-label" id="play-label">Seguir</span>
+          </button>
+        </div>
+
+        <button class="rec-btn" id="btn-record" type="button" aria-label="Grabar">
+          <span class="rec-btn-inner" aria-hidden="true"></span>
+        </button>
+
+        <div class="transport-side transport-side-end">
+          <button class="icon-btn" id="btn-hide" type="button" aria-label="Ocultar los controles">
+            <svg class="icon" aria-hidden="true"><use href="#i-chevron-down"></use></svg>
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Cuenta atrás antes de grabar -->
+    <div class="countdown" id="countdown" hidden>
+      <div class="countdown-num" id="countdown-num">3</div>
+      <p class="countdown-text">La grabación empieza en…</p>
+      <button class="btn btn-ghost btn-sm" id="btn-cancel-countdown" type="button">Cancelar</button>
+    </div>
+  </section>
+
+  <!-- =================================================================
+       PANTALLA 3 · Vista previa del vídeo grabado
+       ================================================================= -->
+  <section class="screen screen-preview" id="screen-preview" aria-label="Vista previa de la grabación">
+    <header class="preview-head">
+      <h2>Tu grabación</h2>
+      <p class="preview-meta" id="preview-meta">—</p>
+    </header>
+
+    <div class="preview-stage">
+      <video id="preview-video" class="preview-video" controls playsinline preload="metadata"></video>
+    </div>
+
+    <p class="preview-note">Solo se grabó la cámara y el micrófono. El texto del teleprompter no aparece en el vídeo.</p>
+
+    <div class="preview-actions">
+      <a class="btn btn-primary btn-lg" id="btn-download" href="#" download="teleprompter.mp4">
+        <svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg>
+        <span>Descargar vídeo</span>
+      </a>
+      <div class="editor-row">
+        <button class="btn btn-ghost" id="btn-share" type="button" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#i-share"></use></svg>
+          <span>Compartir</span>
+        </button>
+        <button class="btn" id="btn-again" type="button">Grabar otra vez</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-to-editor" type="button">Volver al guion</button>
+      <p class="preview-hint" id="preview-hint">En iPhone, el vídeo se guarda en la app «Archivos» o se comparte directamente.</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<noscript>
+  <div class="noscript">Este teleprompter necesita JavaScript activado para usar la cámara y grabar.</div>
+</noscript>
+
+<script src="./app.js"></script>
+</body>
+</html>
